@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Modal from 'react-modal';
 import closeImg from '../../assets/close.svg';
 import incomeImg from '../../assets/income.svg';
 import outcomeImg from '../../assets/outcome.svg';
+import { api } from '../../services/api';
 
 import { Container, TransactionTypeContainer, RadioBox} from './styles';
 
@@ -14,6 +15,21 @@ interface NewTransactionModalProps{
 export function NewTransactionModal(props:NewTransactionModalProps){
   const {isOpen, onRequestClose} = props;
   const [type, setType] = useState('deposit');
+
+  const [title, setTitle ] = useState('');
+  const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState('');
+
+  function handleCreateNewTransaction(event: FormEvent){
+    event.preventDefault();
+    const data = {
+      title,
+      amount,
+      type,
+      category
+    };
+    api.post('transactions', data);
+  }
 
   return(
     <Modal
@@ -36,9 +52,13 @@ export function NewTransactionModal(props:NewTransactionModalProps){
 
         <input 
           placeholder="Título"
+          value={title}
+          onChange={event => setTitle(event.target.value)}
         />
         <input 
           placeholder="Valor"
+          value={amount}
+          onChange={event => setAmount(Number(event.target.value))}
           type="number"
         />
 
@@ -48,8 +68,7 @@ export function NewTransactionModal(props:NewTransactionModalProps){
             isActive={type === 'deposit'}
             activeColor="green"
             onClick={()=> {setType('deposit')}}
-
-            // className={type==='deposit'? 'active' : ''}
+            //className={type==='deposit'? 'active' : ''}
           > 
             <img src={incomeImg} alt="Entrada"/>
             <span>Entrada</span>
@@ -66,8 +85,12 @@ export function NewTransactionModal(props:NewTransactionModalProps){
         </TransactionTypeContainer>
         <input 
           placeholder="Categoria"
+          value={category}
+          onChange={event => setCategory(event.target.value)}
         />
-        <button type="submit">
+        <button 
+          type="submit"
+          onClick={handleCreateNewTransaction}>
           Cadastrar
         </button>
 
